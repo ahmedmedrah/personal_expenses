@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personal_expenses/models/transaction.dart';
+import 'package:personal_expenses/widgets/chart.dart';
 import 'package:personal_expenses/widgets/new_transaction.dart';
 import 'package:personal_expenses/widgets/transaction_list.dart';
 
@@ -14,12 +15,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
         accentColor: Colors.indigo,
+        errorColor: Colors.red,
         fontFamily: 'Quicksand',
         textTheme: ThemeData.light().textTheme.copyWith(
               headline6: TextStyle(
                 fontFamily: 'OpenSans',
                 fontSize: 18,
-                fontWeight: FontWeight.bold
+                fontWeight: FontWeight.bold,
+              ),
+              button: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
         appBarTheme: AppBarTheme(
@@ -63,11 +69,21 @@ class _MyHomePageState extends State<MyHomePage> {
     // ),
   ];
 
-  void _addNewTransaction(String title, double price) {
+  List<TransactionModel> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
+    }).toList();
+  }
+
+  void _addNewTransaction(String title, double price,DateTime date) {
     final newTx = TransactionModel(
       title: title,
       amount: price,
-      date: DateTime.now(),
+      date: date,
       id: DateTime.now().toString(),
     );
     setState(() {
@@ -81,6 +97,12 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (builderCtx) {
           return NewTransaction(_addNewTransaction);
         });
+  }
+
+  void _deleteTransaction(String id){
+    setState(() {
+      _userTransactions.removeWhere((tx)=> tx.id == id);
+    });
   }
 
   @override
@@ -100,14 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Card(
-            child: Container(
-              child: Text('Chart'),
-              width: double.infinity,
-            ),
-            elevation: 5,
-          ),
-          TransactionList(_userTransactions),
+          Chart(_recentTransactions),
+          Expanded(child: TransactionList(_userTransactions,_deleteTransaction)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
