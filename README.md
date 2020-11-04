@@ -1,6 +1,7 @@
 # personal_expenses
 
 A new Flutter project.
+
 Flutter Application to track your spendings and display a chart of the last week spendings chart
 ## Getting Started
 
