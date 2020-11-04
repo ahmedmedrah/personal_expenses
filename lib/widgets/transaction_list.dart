@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personal_expenses/models/transaction.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:personal_expenses/utils/database_services.dart';
+import 'dart:async';
 
 class TransactionList extends StatelessWidget {
   final List<TransactionModel> transactions;
   final Function deleteTX;
+
   TransactionList(this.transactions, this.deleteTX);
 
   @override
@@ -32,7 +36,7 @@ class TransactionList extends StatelessWidget {
           : ListView.builder(
               itemBuilder: (ctx, index) {
                 return Card(
-                  elevation: 3,
+                  elevation: 2,
                   margin: EdgeInsets.all(3),
                   child: ListTile(
                     leading: Container(
@@ -59,15 +63,19 @@ class TransactionList extends StatelessWidget {
                     title: Text(transactions[index].title,
                         style: Theme.of(context).textTheme.headline6),
                     subtitle: Text(
-                      DateFormat.yMMMEd().format(transactions[index].date),
+                      DateFormat.yMMMEd().format(
+                          DateTime.fromMillisecondsSinceEpoch(
+                              transactions[index].date)),
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                     trailing: IconButton(
                       icon: Icon(
                         Icons.delete,
-                        color: Theme.of(context).errorColor,
+                        color: Theme
+                            .of(context)
+                            .errorColor,
                       ),
-                      onPressed: () => deleteTX(transactions[index].id),
+                      onPressed: () => deleteTX(context, transactions[index]),
                     ),
                   ),
                 );

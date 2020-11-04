@@ -13,9 +13,10 @@ class Chart extends StatelessWidget {
       final weekDay = DateTime.now().subtract(Duration(days: index));
       double totalAmount = 0;
       for (var tx in recentTransactions) {
-        if (tx.date.day == weekDay.day &&
-            tx.date.month == weekDay.month &&
-            tx.date.year == weekDay.year) {
+        if (DateTime.fromMillisecondsSinceEpoch(tx.date).day == weekDay.day &&
+            DateTime.fromMillisecondsSinceEpoch(tx.date).month ==
+                weekDay.month &&
+            DateTime.fromMillisecondsSinceEpoch(tx.date).year == weekDay.year) {
           totalAmount += tx.amount;
         }
       }
