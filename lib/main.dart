@@ -1,14 +1,22 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:personal_expenses/models/transaction.dart';
 import 'package:personal_expenses/widgets/chart.dart';
 import 'package:personal_expenses/widgets/new_transaction.dart';
 import 'package:personal_expenses/widgets/transaction_list.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:personal_expenses/utils/database_services.dart';
-import 'dart:async';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]).then((_) {
+    runApp(MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -21,23 +29,23 @@ class MyApp extends StatelessWidget {
         errorColor: Colors.red,
         fontFamily: 'Quicksand',
         textTheme: ThemeData.light().textTheme.copyWith(
-              headline6: TextStyle(
-                fontFamily: 'OpenSans',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              button: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          headline6: TextStyle(
+            fontFamily: 'OpenSans',
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          button: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
-                  headline6: TextStyle(
-                    fontFamily: 'OpenSans',
-                    fontSize: 20,
-                  ),
-                )),
+              headline6: TextStyle(
+                fontFamily: 'OpenSans',
+                fontSize: 20,
+              ),
+            )),
       ),
       title: 'Personal Expenses',
       home: MyHomePage(),
@@ -46,7 +54,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -73,13 +80,17 @@ class _MyHomePageState extends State<MyHomePage> {
       date,
     );
     int res = await databaseHelper.insert(newTx);
-    res != 1 ? _showSnackBar('Added Successfully') : _showSnackBar(
-        'Failed To Add');
+    res != 1
+        ? _showSnackBar('Added Successfully')
+        : _showSnackBar('Failed To Add');
     _updateListView();
   }
 
   void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        isScrollControlled: true,
         context: ctx,
         builder: (builderCtx) {
           return NewTransaction(_addNewTransaction);
@@ -88,14 +99,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _deleteTransaction(BuildContext ctx, TransactionModel tx) async {
     int res = await databaseHelper.delete(tx.id);
-    res == 1 ? _showSnackBar('Deleted Successfully') : _showSnackBar(
-        'Failed To Delete');
+    res == 1
+        ? _showSnackBar('Deleted Successfully')
+        : _showSnackBar('Failed To Delete');
     _updateListView();
   }
 
   void _showSnackBar(String msg) {
     final snackbar = SnackBar(content: Text(msg));
-    _scaffoldKey.currentState.showSnackBar(snackbar);
+    if (Platform.isIOS) return;
+    // _scaffoldKey.currentState.showSnackBar(snackbar);
   }
 
   @override
@@ -104,20 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
       userTransactions = List<TransactionModel>();
       _updateListView();
     }
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('Personal Expenses'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _startAddNewTransaction(context);
-            },
-          ),
-        ],
-      ),
-      body: Column(
+    final homeWidget = SafeArea(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Chart(_recentTransactions),
@@ -125,21 +126,53 @@ class _MyHomePageState extends State<MyHomePage> {
               child: TransactionList(userTransactions, _deleteTransaction)),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          _startAddNewTransaction(context);
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            key: _scaffoldKey,
+            navigationBar: CupertinoNavigationBar(
+              middle: Text('Personal Expenses'),
+              trailing: GestureDetector(
+                child: Icon(CupertinoIcons.add),
+                onTap: () {
+                  _startAddNewTransaction(context);
+                },
+              ),
+            ),
+            child: homeWidget,
+          )
+        : Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              title: Text('Personal Expenses'),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    _startAddNewTransaction(context);
+                  },
+                ),
+              ],
+            ),
+            body: homeWidget,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () {
+                      _startAddNewTransaction(context);
+                    },
+                  ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+          );
   }
 
   void _updateListView() {
     final db = DatabaseHelper().initializeDatabase();
     db.then((database) {
-      Future<List<TransactionModel>> transactions = databaseHelper
-          .getTransactionsList();
+      Future<List<TransactionModel>> transactions =
+      databaseHelper.getTransactionsList();
       transactions.then((value) {
         setState(() {
           userTransactions = value;

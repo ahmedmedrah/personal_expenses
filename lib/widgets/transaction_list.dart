@@ -17,15 +17,17 @@ class TransactionList extends StatelessWidget {
       child: transactions.isEmpty
           ? Column(
               children: [
+                SizedBox(
+                  height: 20,
+                ),
                 Text(
                   'Empty',
                   style: Theme.of(context).textTheme.headline6,
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 40,
                 ),
-                Container(
-                  height: 200,
+                Expanded(
                   child: Image.asset(
                     'assets/images/waiting.png',
                     fit: BoxFit.cover,
@@ -61,21 +63,43 @@ class TransactionList extends StatelessWidget {
                       ),
                     ),
                     title: Text(transactions[index].title,
-                        style: Theme.of(context).textTheme.headline6),
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline6),
                     subtitle: Text(
                       DateFormat.yMMMEd().format(
                           DateTime.fromMillisecondsSinceEpoch(
                               transactions[index].date)),
                       style: TextStyle(color: Colors.grey[700]),
                     ),
-                    trailing: IconButton(
+                    trailing: MediaQuery
+                        .of(context)
+                        .size
+                        .width > 360
+                        ? FlatButton.icon(
+                      label: Text('Delete'),
+                      textColor: Theme
+                          .of(context)
+                          .errorColor,
                       icon: Icon(
                         Icons.delete,
                         color: Theme
                             .of(context)
                             .errorColor,
                       ),
-                      onPressed: () => deleteTX(context, transactions[index]),
+                      onPressed: () =>
+                          deleteTX(context, transactions[index]),
+                    )
+                        : IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        color: Theme
+                            .of(context)
+                            .errorColor,
+                      ),
+                      onPressed: () =>
+                          deleteTX(context, transactions[index]),
                     ),
                   ),
                 );

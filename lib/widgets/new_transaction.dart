@@ -1,5 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:personal_expenses/widgets/adaptive_flat_button.dart';
+import 'package:personal_expenses/widgets/adaptive_text_field.dart';
+import 'package:personal_expenses/widgets/adaptive_raised_button.dart';
 
 class NewTransaction extends StatefulWidget {
   final Function addTxHandler;
@@ -32,10 +36,10 @@ class _NewTransactionState extends State<NewTransaction> {
 
   void _showDatePicker() {
     showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(2020),
-            lastDate: DateTime.now())
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2020),
+        lastDate: DateTime.now())
         .then((value) {
       if (value == null) {
         return;
@@ -49,21 +53,26 @@ class _NewTransactionState extends State<NewTransaction> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      margin: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(
+        top: 10,
+        right: 10,
+        left: 10,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          TextField(
-            decoration: InputDecoration(labelText: 'title'),
-            controller: _titleController,
-            onSubmitted: (_) => _submitData(),
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: 'price'),
-            keyboardType: TextInputType.number,
-            controller: _priceController,
-            onSubmitted: (_) => _submitData(),
-          ),
+          AdaptiveTextField(
+              text: 'title',
+              handler: _submitData,
+              controller: _titleController,
+              textInputType: TextInputType.text),
+          AdaptiveTextField(
+              text: 'price',
+              handler: _submitData,
+              controller: _priceController,
+              textInputType: TextInputType.number),
           Container(
             height: 70,
             child: Row(
@@ -71,33 +80,12 @@ class _NewTransactionState extends State<NewTransaction> {
                 Expanded(
                     child: Text(_selectedDate == null
                         ? 'no date choosen'
-                        : 'Picked Date:\t\t${DateFormat.yMMMd().format(
-                        _selectedDate)}')),
-                FlatButton(
-                  textColor: Theme
-                      .of(context)
-                      .primaryColor,
-                  onPressed: _showDatePicker,
-                  child: Text(
-                    'choose date',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                )
+                        : 'Picked Date:\t\t${DateFormat.yMMMd().format(_selectedDate)}')),
+                AdaptiveFlatButton('Select Date', _showDatePicker),
               ],
             ),
           ),
-          RaisedButton(
-            onPressed: _submitData,
-            child: Text('Add Transaction'),
-            textColor: Theme
-                .of(context)
-                .textTheme
-                .button
-                .color,
-            color: Theme
-                .of(context)
-                .primaryColor,
-          )
+          AdaptiveRaisedButton('Add Transaction', _submitData),
         ],
       ),
     );
