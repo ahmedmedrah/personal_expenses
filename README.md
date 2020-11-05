@@ -2,6 +2,7 @@
 
 A new Flutter project.
 
+Flutter Application to track your spendings and display a chart of the last week spendings chart
 ## Getting Started
 
 This project is a starting point for a Flutter application.
