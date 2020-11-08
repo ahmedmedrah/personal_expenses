@@ -29,23 +29,23 @@ class MyApp extends StatelessWidget {
         errorColor: Colors.red,
         fontFamily: 'Quicksand',
         textTheme: ThemeData.light().textTheme.copyWith(
-          headline6: TextStyle(
-            fontFamily: 'OpenSans',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-          button: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+              headline6: const TextStyle(
+                fontFamily: 'OpenSans',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              button: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
         appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
-              headline6: TextStyle(
-                fontFamily: 'OpenSans',
-                fontSize: 20,
-              ),
-            )),
+                  headline6: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 20,
+                  ),
+                )),
       ),
       title: 'Personal Expenses',
       home: MyHomePage(),
@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _showSnackBar(String msg) {
     final snackbar = SnackBar(content: Text(msg));
     if (Platform.isIOS) return;
-    // _scaffoldKey.currentState.showSnackBar(snackbar);
+    _scaffoldKey.currentState.showSnackBar(snackbar);
   }
 
   @override
@@ -127,45 +127,51 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
-    return Platform.isIOS
-        ? CupertinoPageScaffold(
-            key: _scaffoldKey,
-            navigationBar: CupertinoNavigationBar(
-              middle: Text('Personal Expenses'),
-              trailing: GestureDetector(
-                child: Icon(CupertinoIcons.add),
-                onTap: () {
-                  _startAddNewTransaction(context);
-                },
-              ),
+
+    Widget _androidScaffold() {
+      return Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: const Text('Personal Expenses'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                _startAddNewTransaction(context);
+              },
             ),
-            child: homeWidget,
-          )
-        : Scaffold(
-            key: _scaffoldKey,
-            appBar: AppBar(
-              title: Text('Personal Expenses'),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () {
-                    _startAddNewTransaction(context);
-                  },
-                ),
-              ],
-            ),
-            body: homeWidget,
-            floatingActionButton: Platform.isIOS
-                ? Container()
-                : FloatingActionButton(
-                    child: Icon(Icons.add),
-                    onPressed: () {
-                      _startAddNewTransaction(context);
-                    },
-                  ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-          );
+          ],
+        ),
+        body: homeWidget,
+        floatingActionButton: Platform.isIOS
+            ? Container()
+            : FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () {
+            _startAddNewTransaction(context);
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      );
+    }
+
+    Widget _iosScaffold() {
+      return CupertinoPageScaffold(
+        key: _scaffoldKey,
+        navigationBar: CupertinoNavigationBar(
+          middle: const Text('Personal Expenses'),
+          trailing: GestureDetector(
+            child: const Icon(CupertinoIcons.add),
+            onTap: () {
+              _startAddNewTransaction(context);
+            },
+          ),
+        ),
+        child: homeWidget,
+      );
+    }
+
+    return Platform.isIOS ? _iosScaffold() : _androidScaffold();
   }
 
   void _updateListView() {

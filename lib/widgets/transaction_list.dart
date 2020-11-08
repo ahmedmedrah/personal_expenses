@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:personal_expenses/models/transaction.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:personal_expenses/utils/database_services.dart';
-import 'dart:async';
+import 'package:personal_expenses/widgets/transaction_list_item.dart';
 
 class TransactionList extends StatelessWidget {
   final List<TransactionModel> transactions;
@@ -37,72 +34,8 @@ class TransactionList extends StatelessWidget {
             )
           : ListView.builder(
               itemBuilder: (ctx, index) {
-                return Card(
-                  elevation: 2,
-                  margin: EdgeInsets.all(3),
-                  child: ListTile(
-                    leading: Container(
-                      width: 80,
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 2,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                      child: FittedBox(
-                        child: Text(
-                          '\$ ${transactions[index].amount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    title: Text(transactions[index].title,
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline6),
-                    subtitle: Text(
-                      DateFormat.yMMMEd().format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                              transactions[index].date)),
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    trailing: MediaQuery
-                        .of(context)
-                        .size
-                        .width > 360
-                        ? FlatButton.icon(
-                      label: Text('Delete'),
-                      textColor: Theme
-                          .of(context)
-                          .errorColor,
-                      icon: Icon(
-                        Icons.delete,
-                        color: Theme
-                            .of(context)
-                            .errorColor,
-                      ),
-                      onPressed: () =>
-                          deleteTX(context, transactions[index]),
-                    )
-                        : IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        color: Theme
-                            .of(context)
-                            .errorColor,
-                      ),
-                      onPressed: () =>
-                          deleteTX(context, transactions[index]),
-                    ),
-                  ),
-                );
+                return TransactionListItem(
+                    transaction: transactions[index], deleteTX: deleteTX);
               },
               itemCount: transactions.length,
             ),
