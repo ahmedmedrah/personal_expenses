@@ -3,6 +3,10 @@
 A new Flutter project.
 
 Flutter Application to track your spendings and display a chart of the last week spendings chart
+
+![Alt text](screenshots/1.png?raw=true "Home")
+![Alt text](screenshots/2.png?raw=true "add entry")
+![Alt text](screenshots/3.png?raw=true "Home")
 ## Getting Started
 
 This project is a starting point for a Flutter application.
